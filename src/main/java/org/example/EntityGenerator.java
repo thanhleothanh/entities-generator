@@ -1,9 +1,12 @@
 package org.example;
 
 
+import java.util.List;
+import java.util.Map;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.example.model.Constraint;
 import org.example.schema.AbstractSchemaScanner;
 import org.example.schema.ConnectionManager;
 import org.example.schema.SchemaScannerFactory;
@@ -32,7 +35,7 @@ public final class EntityGenerator extends AbstractMojo {
 
 		ConnectionManager connectionManager = new ConnectionManager(jdbcUrl, jdbcUser, jdbcPassword);
 		AbstractSchemaScanner scanner = SchemaScannerFactory.of(connectionManager);
-		scanner.scanTablePrimaryKeys();
+		Map<String, List<Constraint>> primaryKeys = scanner.scanTablePrimaryKeys();
 		scanner.scanTableColumns();
 		scanner.scanTableForeignKeys();
 		scanner.scanViews();
