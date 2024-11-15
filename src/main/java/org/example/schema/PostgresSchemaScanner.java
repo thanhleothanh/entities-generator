@@ -31,6 +31,20 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 				 WHERE isc.table_schema NOT IN ('pg_catalog', 'information_schema')
 				 ORDER BY table_name, ordinal_position""";
 
+	private static final String QUERY_FOREIGN_KEY_CONSTRAINTS = """
+				SELECT tc.constraint_type AS constraint_type,
+				       tc.constraint_name AS constraint_name,
+				       kcu.table_name     AS table_name,
+				       kcu.column_name    AS column_name,
+				       fkcu.table_name    AS f_table_name,
+				       fkcu.column_name   AS f_column_name
+				  FROM information_schema.table_constraints tc
+				  INNER JOIN (SELECT DISTINCT * FROM information_schema.referential_constraints rc) rc ON tc.constraint_name = rc.constraint_name
+				  INNER JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name AND tc.table_name = kcu.table_name
+				  INNER JOIN information_schema.key_column_usage fkcu ON fkcu.ordinal_position = kcu.position_in_unique_constraint AND fkcu.constraint_name = rc.unique_constraint_name
+				 WHERE tc.constraint_type = 'FOREIGN KEY'
+				   AND tc.table_schema NOT IN ('pg_catalog', 'information_schema')""";
+
 	public PostgresSchemaScanner(ConnectionManager connectionManager) {
 		super(connectionManager);
 	}
@@ -58,8 +72,14 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 	}
 
 	@Override
-	public void scanTableForeignKeys() {
-		throw new UnsupportedOperationException();
+	public Map<String, List<Constraint>> scanTableForeignKeys() {
+		LogUtil.log.info("Scanning all table foreign keys");
+		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_FOREIGN_KEY_CONSTRAINTS)) {
+			return normalizeForeignKeys(st.executeQuery());
+		} catch (SQLException e) {
+			LogUtil.log.error(String.format("Failed scanning all table foreign keys - %s", e.getMessage()));
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

@@ -12,7 +12,7 @@ public class SchemaScannerFactory {
 
 		return switch (connectionManager.getDriver()) {
 			case POSTGRESQL -> new PostgresSchemaScanner(connectionManager);
-			default -> throw new IllegalArgumentException("connectionManager driver is not supported");
+			default -> throw new IllegalArgumentException(String.format("connectionManager driver '%s' is not supported", connectionManager.getDriver()));
 		};
 	}
 }

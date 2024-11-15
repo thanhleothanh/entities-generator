@@ -38,7 +38,7 @@ public final class EntityGenerator extends AbstractMojo {
 		AbstractSchemaScanner scanner = SchemaScannerFactory.of(connectionManager);
 		Map<String, List<Constraint>> primaryKeys = scanner.scanTablePrimaryKeys();
 		Map<String, List<Column>> columns = scanner.scanTableColumns();
-		scanner.scanTableForeignKeys();
+		Map<String, List<Constraint>> foreignKeys = scanner.scanTableForeignKeys();
 		scanner.scanViews();
 	}
 }
