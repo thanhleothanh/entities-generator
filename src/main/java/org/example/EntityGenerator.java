@@ -25,16 +25,16 @@ public final class EntityGenerator extends AbstractMojo {
 
 	@Override
 	public void execute() {
-		getLog().info("Generating entities!");
-		getLog().info(jdbcUrl);
-		getLog().info(jdbcUser);
-		getLog().info(jdbcPassword);
+		LogUtil.log.info("Generating entities!");
+		LogUtil.log.info(jdbcUrl);
+		LogUtil.log.info(jdbcUser);
+		LogUtil.log.info(jdbcPassword);
 
 		ConnectionManager connectionManager = new ConnectionManager(jdbcUrl, jdbcUser, jdbcPassword);
-		AbstractSchemaScanner abstractSchemaScanner = SchemaScannerFactory.of(connectionManager);
-		abstractSchemaScanner.scanTablePrimaryKeys();
-		abstractSchemaScanner.scanTableColumns();
-		abstractSchemaScanner.scanTableForeignKeys();
-		abstractSchemaScanner.scanViews();
+		AbstractSchemaScanner scanner = SchemaScannerFactory.of(connectionManager);
+		scanner.scanTablePrimaryKeys();
+		scanner.scanTableColumns();
+		scanner.scanTableForeignKeys();
+		scanner.scanViews();
 	}
 }
