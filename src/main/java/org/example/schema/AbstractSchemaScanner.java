@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.example.model.Column;
 import org.example.model.Constraint;
 import org.example.model.enums.ConstraintType;
 import org.example.util.LogUtil;
@@ -18,7 +19,7 @@ public abstract class AbstractSchemaScanner {
 	}
 
 	public abstract Map<String, List<Constraint>> scanTablePrimaryKeys();
-	public abstract void scanTableColumns();
+	public abstract Map<String, List<Column>> scanTableColumns();
 	public abstract void scanTableForeignKeys();
 	public abstract void scanViews();
 
@@ -33,13 +34,23 @@ public abstract class AbstractSchemaScanner {
 					null,
 					null);
 			constraints.add(constraint);
-			LogUtil.log.info(String.format("Found primary key '%s' for table '%s'", constraint.columnName(), constraint.tableName()));
+			LogUtil.log.info(String.format("Found in table '%s', primary key '%s'", constraint.tableName(), constraint.columnName()));
 		}
 		return constraints.stream().collect(Collectors.groupingBy(Constraint::constraintName));
 	}
 
-	protected void normalizeColumns() {
-
+	protected Map<String, List<Column>> normalizeColumns(ResultSet rs) throws SQLException {
+		List<Column> columns = new ArrayList<>();
+		while (rs.next()) {
+			Column column = new Column(
+					rs.getString("table_name"),
+					rs.getString("column_name"),
+					rs.getString("data_type"),
+					rs.getBoolean("is_nullable"));
+			columns.add(column);
+			LogUtil.log.info(String.format("Found in table '%s', column '%s', data type '%s'", column.tableName(), column.columnName(), column.dataType()));
+		}
+		return columns.stream().collect(Collectors.groupingBy(Column::tableName));
 	}
 
 	protected void normalizeForeignKeys() {

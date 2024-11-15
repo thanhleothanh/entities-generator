@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
+import org.example.model.Column;
 import org.example.model.Constraint;
 import org.example.util.LogUtil;
 
@@ -20,6 +21,15 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 				  JOIN information_schema.key_column_usage kcu ON istc.constraint_name = kcu.constraint_name
 				 WHERE istc.constraint_type = 'PRIMARY KEY'
 				   AND istc.table_schema NOT IN ('pg_catalog', 'information_schema')""";
+
+	private static final String QUERY_COLUMNS = """
+				SELECT isc.table_name        AS table_name,
+				       isc.column_name       AS column_name,
+				       isc.data_type         AS data_type,
+				       isc.is_nullable::bool AS is_nullable
+				  FROM information_schema.columns isc
+				 WHERE isc.table_schema NOT IN ('pg_catalog', 'information_schema')
+				 ORDER BY table_name, ordinal_position""";
 
 	public PostgresSchemaScanner(ConnectionManager connectionManager) {
 		super(connectionManager);
@@ -37,8 +47,14 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 	}
 
 	@Override
-	public void scanTableColumns() {
-		throw new UnsupportedOperationException();
+	public Map<String, List<Column>> scanTableColumns() {
+		LogUtil.log.info("Scanning all table columns");
+		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_COLUMNS)) {
+			return normalizeColumns(st.executeQuery());
+		} catch (SQLException e) {
+			LogUtil.log.error(String.format("Failed scanning all table columns - %s", e.getMessage()));
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
