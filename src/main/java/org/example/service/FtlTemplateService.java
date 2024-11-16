@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.example.EntityGenerator;
+import org.example.AbstractGeneratorContext;
 import org.example.model.entity.Entity;
 
 public class FtlTemplateService implements TemplateService {
@@ -20,7 +20,7 @@ public class FtlTemplateService implements TemplateService {
 		cfg.setLocale(Locale.US);
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-		cfg.setClassForTemplateLoading(EntityGenerator.class, "/template");
+		cfg.setClassForTemplateLoading(AbstractGeneratorContext.class, "/template");
 
 		for (Entity entity : entities) {
 			Map<String, Object> input = new HashMap<>();

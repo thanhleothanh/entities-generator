@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.example.AbstractGeneratorContext;
+import org.example.model.enums.ConstraintType;
 import org.example.model.schema.Column;
 import org.example.model.schema.Constraint;
-import org.example.model.enums.ConstraintType;
-import org.example.util.CurrentContext;
 
 public abstract class AbstractSchemaScanner {
 	protected final ConnectionManager connectionManager;
@@ -35,7 +35,7 @@ public abstract class AbstractSchemaScanner {
 					null,
 					null);
 			constraints.add(constraint);
-			CurrentContext.log.info(String.format("Found in table (%s), primary key (%s)", constraint.tableName(), constraint.columnName()));
+			AbstractGeneratorContext.log.info(String.format("Found in table (%s), primary key (%s)", constraint.tableName(), constraint.columnName()));
 		}
 		return constraints.stream().collect(Collectors.groupingBy(Constraint::tableName, TreeMap::new, Collectors.toList()));
 	}
@@ -49,7 +49,7 @@ public abstract class AbstractSchemaScanner {
 					rs.getString("data_type"),
 					rs.getBoolean("is_nullable"));
 			columns.add(column);
-			CurrentContext.log.info(String.format("Found in table (%s), column (%s), data type (%s)", column.tableName(), column.columnName(), column.dataType()));
+			AbstractGeneratorContext.log.info(String.format("Found in table (%s), column (%s), data type (%s)", column.tableName(), column.columnName(), column.dataType()));
 		}
 		return columns.stream().collect(Collectors.groupingBy(Column::tableName, TreeMap::new, Collectors.toList()));
 	}
@@ -65,7 +65,7 @@ public abstract class AbstractSchemaScanner {
 					rs.getString("f_table_name"),
 					rs.getString("f_column_name"));
 			constraints.add(constraint);
-			CurrentContext.log.info(String.format("Found foreign key, %s (%s) -> %s (%s)", constraint.tableName(), constraint.columnName(), constraint.fTableName(), constraint.fColumnName()));
+			AbstractGeneratorContext.log.info(String.format("Found foreign key, %s (%s) -> %s (%s)", constraint.tableName(), constraint.columnName(), constraint.fTableName(), constraint.fColumnName()));
 		}
 		return constraints.stream().collect(Collectors.groupingBy(Constraint::tableName, TreeMap::new, Collectors.toList()));
 	}

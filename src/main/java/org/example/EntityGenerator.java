@@ -9,7 +9,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.text.CaseUtils;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.example.model.entity.Entity;
@@ -20,13 +19,9 @@ import org.example.schema.ConnectionManager;
 import org.example.schema.SchemaScannerFactory;
 import org.example.service.FtlTemplateService;
 import org.example.service.TemplateService;
-import org.example.util.CurrentContext;
 
 @Mojo(name = "entities-generate")
-public final class EntityGenerator extends AbstractMojo {
-	{
-		CurrentContext.log = getLog();
-	}
+public final class EntityGenerator extends AbstractGeneratorContext {
 
 	@Parameter(property = "jdbcUrl", required = true)
 	private String jdbcUrl;
@@ -35,19 +30,21 @@ public final class EntityGenerator extends AbstractMojo {
 	@Parameter(property = "jdbcPassword", required = true)
 	private String jdbcPassword;
 
+	@Override
+	public void initConnectionManager() {
+		connectionManager = new ConnectionManager(jdbcUrl, jdbcUser, jdbcPassword);
+	}
 
 	@Override
-	public void execute() {
-		CurrentContext.log.info("Scanning schema!");
-		ConnectionManager connectionManager = new ConnectionManager(jdbcUrl, jdbcUser, jdbcPassword);
-		CurrentContext.connectionManager = connectionManager;
+	public void doExecute() {
+		log.info("Scanning schema!");
 		AbstractSchemaScanner scanner = SchemaScannerFactory.of(connectionManager);
 		Map<String, List<Constraint>> primaryKeys = scanner.scanTablePrimaryKeys();
 		Map<String, List<Column>> columns = scanner.scanTableColumns();
 		Map<String, List<Constraint>> foreignKeys = scanner.scanTableForeignKeys();
 		scanner.scanViews();
 
-		CurrentContext.log.info("Generating Java files!");
+		log.info("Generating Java files!");
 		TemplateService service = new FtlTemplateService();
 		service.process(normalizeSchemaData(primaryKeys, columns, foreignKeys));
 	}
