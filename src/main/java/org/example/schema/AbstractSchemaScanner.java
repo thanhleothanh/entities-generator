@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import org.example.model.Column;
-import org.example.model.Constraint;
+import org.example.model.schema.Column;
+import org.example.model.schema.Constraint;
 import org.example.model.enums.ConstraintType;
 import org.example.util.LogUtil;
 

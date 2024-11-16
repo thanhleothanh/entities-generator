@@ -1,4 +1,4 @@
-package org.example.model;
+package org.example.model.schema;
 
 import org.example.model.enums.ConstraintType;
 

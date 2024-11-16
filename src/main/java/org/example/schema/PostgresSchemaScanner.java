@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
-import org.example.model.Column;
-import org.example.model.Constraint;
+import org.example.model.schema.Column;
+import org.example.model.schema.Constraint;
 import org.example.util.LogUtil;
 
 public final class PostgresSchemaScanner extends AbstractSchemaScanner {
