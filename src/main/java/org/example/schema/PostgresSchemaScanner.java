@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import org.example.model.schema.Column;
 import org.example.model.schema.Constraint;
-import org.example.util.LogUtil;
+import org.example.util.CurrentContext;
 
 public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 	private static final String QUERY_PRIMARY_KEY_CONSTRAINTS = """
@@ -51,33 +51,33 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 
 	@Override
 	public Map<String, List<Constraint>> scanTablePrimaryKeys() {
-		LogUtil.log.info("Scanning all table primary keys");
+		CurrentContext.log.info("Scanning all table primary keys");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_PRIMARY_KEY_CONSTRAINTS)) {
 			return normalizePrimaryKeys(st.executeQuery());
 		} catch (SQLException e) {
-			LogUtil.log.error(String.format("Failed scanning all table primary keys - %s", e.getMessage()));
+			CurrentContext.log.error(String.format("Failed scanning all table primary keys - %s", e.getMessage()));
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public Map<String, List<Column>> scanTableColumns() {
-		LogUtil.log.info("Scanning all table columns");
+		CurrentContext.log.info("Scanning all table columns");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_COLUMNS)) {
 			return normalizeColumns(st.executeQuery());
 		} catch (SQLException e) {
-			LogUtil.log.error(String.format("Failed scanning all table columns - %s", e.getMessage()));
+			CurrentContext.log.error(String.format("Failed scanning all table columns - %s", e.getMessage()));
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public Map<String, List<Constraint>> scanTableForeignKeys() {
-		LogUtil.log.info("Scanning all table foreign keys");
+		CurrentContext.log.info("Scanning all table foreign keys");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_FOREIGN_KEY_CONSTRAINTS)) {
 			return normalizeForeignKeys(st.executeQuery());
 		} catch (SQLException e) {
-			LogUtil.log.error(String.format("Failed scanning all table foreign keys - %s", e.getMessage()));
+			CurrentContext.log.error(String.format("Failed scanning all table foreign keys - %s", e.getMessage()));
 			throw new RuntimeException(e);
 		}
 	}
@@ -90,7 +90,7 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 			int colCount = rs.getMetaData().getColumnCount();
 			StringBuilder str = new StringBuilder();
 			for (int i = 1; i <= colCount; i++) str.append(rs.getString(i)).append(" ");
-			LogUtil.log.info(str);
+			CurrentContext.log.info(str);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}

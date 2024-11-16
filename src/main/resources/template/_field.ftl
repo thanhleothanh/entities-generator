@@ -1,9 +1,5 @@
-<#macro generate>
-<#if field.getIsId()>
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-</#if>
-  @Column(name = "${field.getColumnName()}")
-  private ${field.getDataType()} ${field.getName()};
+<#macro generate field indent>
+${indent}@Column(name = "${field.getColumnName()}")
+${indent}private ${field.getJavaClass()} ${field.getName()};
 
 </#macro>
