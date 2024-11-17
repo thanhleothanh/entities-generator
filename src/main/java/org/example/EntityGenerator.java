@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import org.apache.commons.text.CaseUtils;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.example.model.entity.Entity;
+import org.example.model.entity.ReferencingField;
 import org.example.model.schema.Column;
 import org.example.model.schema.Constraint;
 import org.example.schema.AbstractSchemaScanner;
@@ -60,17 +61,19 @@ public final class EntityGenerator extends AbstractGeneratorContext {
 	) {
 		Map<String, Constraint> mapPrimaryKeyByColumnName = primaryKeys.stream().collect(Collectors.toMap(Constraint::columnName, Function.identity(), (l, r) -> l));
 		Map<String, Constraint> mapForeignKeyByColumnName = foreignKeys.stream().collect(Collectors.toMap(Constraint::columnName, Function.identity(), (l, r) -> l));
+		Map<String, List<Constraint>> mapForeignKeyByConstraintName = foreignKeys.stream().collect(Collectors.groupingBy(Constraint::constraintName));
 
 		Entity entity = new Entity(toPath, CaseUtils.toCamelCase(tableName, true, '_'), tableName);
 		columns.stream()
 				.filter(col -> mapPrimaryKeyByColumnName.containsKey(col.columnName()))
 				.forEach(entity::addId);
 		columns.stream()
-				.filter(col -> mapForeignKeyByColumnName.containsKey(col.columnName()))
-				.forEach(col -> entity.addReferencedField(col, mapForeignKeyByColumnName.get(col.columnName())));
-		columns.stream()
 				.filter(col -> !mapPrimaryKeyByColumnName.containsKey(col.columnName()) && !mapForeignKeyByColumnName.containsKey(col.columnName()))
 				.forEach(entity::addField);
+		mapForeignKeyByConstraintName.values().stream()
+				.map(constraints -> constraints.stream().map(ReferencingField::of).toList())
+				.toList()
+				.forEach(entity::addRelationship);
 		return entity;
 	}
 

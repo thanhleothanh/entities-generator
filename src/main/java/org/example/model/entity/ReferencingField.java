@@ -1,20 +1,19 @@
 package org.example.model.entity;
 
 import lombok.Getter;
-import org.example.model.schema.Column;
 import org.example.model.schema.Constraint;
 
 @Getter
 public class ReferencingField extends Field {
 
-	private final Field toField;
+	private final Field referencedField;
 
-	public ReferencingField(Field field, Field toField) {
-		super(field.getName(), field.getColumnName(), field.getJavaClass());
-		this.toField = toField;
+	public ReferencingField(Field referencingField, Field referencedField) {
+		super(referencingField.getName(), referencingField.getTableName(), referencingField.getColumnName(), referencingField.getJavaClass());
+		this.referencedField = referencedField;
 	}
 
-	public static ReferencingField of(Column col, Constraint fk) {
-		return new ReferencingField(Field.of(col), Field.of(fk));
+	public static ReferencingField of(Constraint fk) {
+		return new ReferencingField(Field.ofReferencingField(fk), Field.ofReferencedField(fk));
 	}
 }
