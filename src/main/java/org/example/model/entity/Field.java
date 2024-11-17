@@ -1,10 +1,7 @@
 package org.example.model.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.apache.commons.text.CaseUtils;
 import org.example.AbstractGeneratorContext;
 import org.example.model.enums.DataType;
@@ -12,21 +9,24 @@ import org.example.model.schema.Column;
 import org.example.model.schema.Constraint;
 
 @Getter
-@Setter
-@Builder(toBuilder = true)
 @AllArgsConstructor
-@NoArgsConstructor
 public class Field {
-	private String name;
-	private String columnName;
-	private String javaClass;
+	private final String name;
+	private final String columnName;
+	private final String javaClass;
 
-	public static Field of(Column col, Constraint fk) {
+	public static Field of(Column col) {
 		DataType dataType = DataType.of(AbstractGeneratorContext.connectionManager.getDriver(), col.dataType());
-		return new Field().toBuilder()
-				.name(CaseUtils.toCamelCase(col.columnName(), false, '_'))
-				.columnName(col.columnName())
-				.javaClass(dataType.getJavaClass())
-				.build();
+		return new Field(
+				CaseUtils.toCamelCase(col.columnName(), false, '_'),
+				col.columnName(),
+				dataType.getJavaClass());
+	}
+
+	public static Field of(Constraint fk) {
+		return new Field(
+				CaseUtils.toCamelCase(fk.fColumnName(), false, '_'),
+				fk.fColumnName(),
+				CaseUtils.toCamelCase(fk.fTableName(), true, '_'));
 	}
 }

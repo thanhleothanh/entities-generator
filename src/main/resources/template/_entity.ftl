@@ -1,16 +1,17 @@
 <#import "_id.ftl" as _id>
 <#import "_field.ftl" as _field>
+<#import "_referencingField.ftl" as _referencingField>
 package ${packageName};
 
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
-import javax.persistence.Id;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.*;
+<#list entity.getImports() as import>
+import ${import};
+</#list>
 
 @Getter
 @Setter
@@ -22,5 +23,8 @@ public class ${entity.getName()} {
   <@_id.generate entity.getIds() entity.getIds()?size />
   <#list entity.getFields() as entityField>
     <@_field.generate entityField "  "/>
+  </#list>
+  <#list entity.getReferencingFields() as referencingField>
+    <@_referencingField.generate referencingField "  "/>
   </#list>
 }

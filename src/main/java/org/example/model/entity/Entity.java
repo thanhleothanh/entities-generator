@@ -2,36 +2,40 @@ package org.example.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.AbstractGeneratorContext;
 import org.example.model.schema.Column;
 import org.example.model.schema.Constraint;
 
 @Getter
 @Setter
-@Builder(toBuilder = true)
-@AllArgsConstructor
-@NoArgsConstructor
 public class Entity {
-	private String name;
-	private String tableName;
-	private List<Field> ids;
-	private List<Field> fields;
+	private final String packageName;
+	private final String name;
+	private final String tableName;
+	private final List<String> imports = new ArrayList<>();
+	private final List<Field> ids = new ArrayList<>();
+	private final List<Field> fields = new ArrayList<>();
+	private final List<ReferencingField> referencingFields = new ArrayList<>();
 
-	public void addId(Column col, Constraint fk) {
-		if (this.ids == null) {
-			this.ids = new ArrayList<>();
-		}
-		this.ids.add(Field.of(col, fk));
+	public Entity(String packageName, String name, String tableName) {
+		this.packageName = packageName;
+		this.name = name;
+		this.tableName = tableName;
 	}
 
-	public void addField(Column col, Constraint fk) {
-		if (this.fields == null) {
-			this.fields = new ArrayList<>();
-		}
-		this.fields.add(Field.of(col, fk));
+	public void addId(Column col) {
+		this.ids.add(Field.of(col));
+	}
+
+	public void addField(Column col) {
+		this.fields.add(Field.of(col));
+	}
+
+	public void addReferencedField(Column col, Constraint fk) {
+		ReferencingField rf = ReferencingField.of(col, fk);
+		this.referencingFields.add(rf);
+		this.imports.add(String.format("%s.%s", AbstractGeneratorContext.packageName, rf.getToField().getJavaClass()));
 	}
 }

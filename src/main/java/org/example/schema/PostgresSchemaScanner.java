@@ -51,7 +51,7 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 
 	@Override
 	public Map<String, List<Constraint>> scanTablePrimaryKeys() {
-		AbstractGeneratorContext.log.info("Scanning all table primary keys");
+		AbstractGeneratorContext.log.info("\tScanning all table primary keys");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_PRIMARY_KEY_CONSTRAINTS)) {
 			return normalizePrimaryKeys(st.executeQuery());
 		} catch (SQLException e) {
@@ -62,7 +62,7 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 
 	@Override
 	public Map<String, List<Column>> scanTableColumns() {
-		AbstractGeneratorContext.log.info("Scanning all table columns");
+		AbstractGeneratorContext.log.info("\tScanning all table columns");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_COLUMNS)) {
 			return normalizeColumns(st.executeQuery());
 		} catch (SQLException e) {
@@ -73,7 +73,7 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 
 	@Override
 	public Map<String, List<Constraint>> scanTableForeignKeys() {
-		AbstractGeneratorContext.log.info("Scanning all table foreign keys");
+		AbstractGeneratorContext.log.info("\tScanning all table foreign keys");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_FOREIGN_KEY_CONSTRAINTS)) {
 			return normalizeForeignKeys(st.executeQuery());
 		} catch (SQLException e) {

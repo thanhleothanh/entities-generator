@@ -10,12 +10,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.text.CaseUtils;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.example.model.entity.Entity;
 import org.example.model.schema.Column;
 import org.example.model.schema.Constraint;
 import org.example.schema.AbstractSchemaScanner;
-import org.example.schema.ConnectionManager;
 import org.example.schema.SchemaScannerFactory;
 import org.example.service.FtlTemplateService;
 import org.example.service.TemplateService;
@@ -23,28 +21,16 @@ import org.example.service.TemplateService;
 @Mojo(name = "entities-generate")
 public final class EntityGenerator extends AbstractGeneratorContext {
 
-	@Parameter(property = "jdbcUrl", required = true)
-	private String jdbcUrl;
-	@Parameter(property = "jdbcUser", required = true)
-	private String jdbcUser;
-	@Parameter(property = "jdbcPassword", required = true)
-	private String jdbcPassword;
-
-	@Override
-	public void initConnectionManager() {
-		connectionManager = new ConnectionManager(jdbcUrl, jdbcUser, jdbcPassword);
-	}
-
 	@Override
 	public void doExecute() {
-		log.info("Scanning schema!");
+		log.info("\n>>> Scanning schema! <<<");
 		AbstractSchemaScanner scanner = SchemaScannerFactory.of(connectionManager);
 		Map<String, List<Constraint>> primaryKeys = scanner.scanTablePrimaryKeys();
 		Map<String, List<Column>> columns = scanner.scanTableColumns();
 		Map<String, List<Constraint>> foreignKeys = scanner.scanTableForeignKeys();
 		scanner.scanViews();
 
-		log.info("Generating Java files!");
+		log.info("\n>>> Generating Java files! <<<");
 		TemplateService service = new FtlTemplateService();
 		service.process(normalizeSchemaData(primaryKeys, columns, foreignKeys));
 	}
@@ -67,7 +53,7 @@ public final class EntityGenerator extends AbstractGeneratorContext {
 	}
 
 	private Entity buildEntityFromSchema(
-			String table,
+			String tableName,
 			List<Constraint> primaryKeys,
 			List<Column> columns,
 			List<Constraint> foreignKeys
@@ -75,16 +61,16 @@ public final class EntityGenerator extends AbstractGeneratorContext {
 		Map<String, Constraint> mapPrimaryKeyByColumnName = primaryKeys.stream().collect(Collectors.toMap(Constraint::columnName, Function.identity(), (l, r) -> l));
 		Map<String, Constraint> mapForeignKeyByColumnName = foreignKeys.stream().collect(Collectors.toMap(Constraint::columnName, Function.identity(), (l, r) -> l));
 
-		Entity entity = new Entity().toBuilder()
-				.name(CaseUtils.toCamelCase(table, true, '_'))
-				.tableName(table)
-				.build();
+		Entity entity = new Entity(toPath, CaseUtils.toCamelCase(tableName, true, '_'), tableName);
 		columns.stream()
 				.filter(col -> mapPrimaryKeyByColumnName.containsKey(col.columnName()))
-				.forEach(col -> entity.addId(col, mapForeignKeyByColumnName.get(col.columnName())));
+				.forEach(entity::addId);
 		columns.stream()
-				.filter(col -> !mapPrimaryKeyByColumnName.containsKey(col.columnName()))
-				.forEach(col -> entity.addField(col, mapForeignKeyByColumnName.get(col.columnName())));
+				.filter(col -> mapForeignKeyByColumnName.containsKey(col.columnName()))
+				.forEach(col -> entity.addReferencedField(col, mapForeignKeyByColumnName.get(col.columnName())));
+		columns.stream()
+				.filter(col -> !mapPrimaryKeyByColumnName.containsKey(col.columnName()) && !mapForeignKeyByColumnName.containsKey(col.columnName()))
+				.forEach(entity::addField);
 		return entity;
 	}
 
