@@ -9,13 +9,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.text.CaseUtils;
 import org.example.AbstractGeneratorContext;
 import org.example.model.entity.Entity;
 import org.example.model.entity.ReferencingField;
 import org.example.model.schema.Column;
 import org.example.model.schema.Constraint;
 import org.example.service.EntityNormalizerService;
+import org.example.util.TextUtil;
 
 public class GenericEntityNormalizerService implements EntityNormalizerService {
 
@@ -60,7 +60,7 @@ public class GenericEntityNormalizerService implements EntityNormalizerService {
 
 		Entity entity = new Entity(
 				AbstractGeneratorContext.packageName,
-				CaseUtils.toCamelCase(tableName, true, '_'),
+				TextUtil.toCamelCase(tableName, true),
 				tableName);
 		columns.stream()
 				.filter(col -> mapPrimaryKeyByColumnName.containsKey(col.columnName()))
@@ -82,7 +82,7 @@ public class GenericEntityNormalizerService implements EntityNormalizerService {
 
 		Entity entity = new Entity(
 				AbstractGeneratorContext.packageName,
-				CaseUtils.toCamelCase(tableName, true, '_'),
+				TextUtil.toCamelCase(tableName, true),
 				tableName);
 		entity.addId(columns.get(0));
 		for (int i = 1; i < columns.size(); i++) entity.addField(columns.get(i));

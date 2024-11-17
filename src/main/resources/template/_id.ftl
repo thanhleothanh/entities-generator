@@ -10,7 +10,7 @@
   <#lt>  @Embeddable
   <#lt>  @Getter
   <#lt>  @Setter
-  <#lt>  public static class CompId {
+  <#lt>  public static class CompId implements Serializable {
   <#list ids as id>
 
     <#lt>    @Column(name = "${id.getColumnName()}")

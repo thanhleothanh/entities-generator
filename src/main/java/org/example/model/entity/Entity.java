@@ -1,7 +1,9 @@
 package org.example.model.entity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
@@ -14,7 +16,7 @@ public class Entity {
 	private final String packageName;
 	private final String name;
 	private final String tableName;
-	private final List<String> imports = new ArrayList<>();
+	private final Set<String> imports = new HashSet<>();
 	private final List<Field> ids = new ArrayList<>();
 	private final List<Field> fields = new ArrayList<>();
 	private final List<Relationship> relationships = new ArrayList<>();

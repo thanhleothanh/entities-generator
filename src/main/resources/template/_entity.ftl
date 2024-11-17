@@ -3,12 +3,13 @@
 
 package ${packageName};
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import javax.persistence.*;
 <#list entity.getImports() as import>
   <#lt>import ${import};
 </#list>
@@ -17,8 +18,8 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "${entity.getTableName()}")
-public class ${entity.getName()} {
-  public static final String TABLE_NAME = "${entity.getTableName()}"
+public class ${entity.getName()} implements Serializable {
+  public static final String TABLE_NAME = "${entity.getTableName()}";
 
   <#--id-->
   <#if (entity.getIds()?size > 1)><@_id.generateComp entity.getIds() />
