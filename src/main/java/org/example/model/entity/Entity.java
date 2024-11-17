@@ -39,9 +39,7 @@ public class Entity {
 			return;
 		}
 		this.imports.add(String.format("%s.%s", AbstractGeneratorContext.packageName, fields.get(0).getJavaClass()));
-		Relationship relationship = new Relationship(fields);
-		if (fields.size() > 1) this.compRelationships.add(relationship);
-		else this.relationships.add(relationship);
-
+		if (fields.size() > 1) this.compRelationships.add(new Relationship(fields));
+		else this.relationships.add(new Relationship(fields));
 	}
 }

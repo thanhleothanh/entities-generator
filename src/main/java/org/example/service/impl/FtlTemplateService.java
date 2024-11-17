@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.impl;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import org.example.AbstractGeneratorContext;
 import org.example.model.entity.Entity;
+import org.example.service.TemplateService;
 
 public class FtlTemplateService implements TemplateService {
 

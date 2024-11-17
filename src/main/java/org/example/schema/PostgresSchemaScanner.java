@@ -2,9 +2,7 @@ package org.example.schema;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import org.example.AbstractGeneratorContext;
@@ -22,13 +20,14 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 				 WHERE istc.constraint_type = 'PRIMARY KEY'
 				   AND istc.table_schema NOT IN ('pg_catalog', 'information_schema')""";
 
-	private static final String QUERY_COLUMNS = """
+	private static final String QUERY_TABLE_COLUMNS = """
 				SELECT isc.table_name        AS table_name,
 				       isc.column_name       AS column_name,
-				       isc.data_type         AS data_type,
-				       isc.is_nullable::bool AS is_nullable
+				       isc.data_type         AS data_type
 				  FROM information_schema.columns isc
+				  JOIN information_schema.tables ist ON isc.table_name = ist.table_name
 				 WHERE isc.table_schema NOT IN ('pg_catalog', 'information_schema')
+				   AND ist.table_type = 'BASE TABLE'
 				 ORDER BY table_name, ordinal_position""";
 
 	private static final String QUERY_FOREIGN_KEY_CONSTRAINTS = """
@@ -45,13 +44,23 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 				 WHERE tc.constraint_type = 'FOREIGN KEY'
 				   AND tc.table_schema NOT IN ('pg_catalog', 'information_schema')""";
 
+	private static final String QUERY_VIEW_COLUMNS = """
+				SELECT isc.table_name        AS table_name,
+				       isc.column_name       AS column_name,
+				       isc.data_type         AS data_type
+				  FROM information_schema.columns isc
+				  JOIN information_schema.tables ist ON isc.table_name = ist.table_name
+				 WHERE isc.table_schema NOT IN ('pg_catalog', 'information_schema')
+				   AND ist.table_type = 'VIEW'
+				 ORDER BY table_name, ordinal_position""";
+
 	public PostgresSchemaScanner(ConnectionManager connectionManager) {
 		super(connectionManager);
 	}
 
 	@Override
 	public Map<String, List<Constraint>> scanTablePrimaryKeys() {
-		AbstractGeneratorContext.log.info("\tScanning all table primary keys");
+		AbstractGeneratorContext.log.info("\t\t\t\t\tScanning all table primary keys");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_PRIMARY_KEY_CONSTRAINTS)) {
 			return normalizePrimaryKeys(st.executeQuery());
 		} catch (SQLException e) {
@@ -62,8 +71,8 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 
 	@Override
 	public Map<String, List<Column>> scanTableColumns() {
-		AbstractGeneratorContext.log.info("\tScanning all table columns");
-		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_COLUMNS)) {
+		AbstractGeneratorContext.log.info("\t\t\t\t\tScanning all table columns");
+		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_TABLE_COLUMNS)) {
 			return normalizeColumns(st.executeQuery());
 		} catch (SQLException e) {
 			AbstractGeneratorContext.log.error(String.format("Failed scanning all table columns - %s", e.getMessage()));
@@ -73,7 +82,7 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 
 	@Override
 	public Map<String, List<Constraint>> scanTableForeignKeys() {
-		AbstractGeneratorContext.log.info("\tScanning all table foreign keys");
+		AbstractGeneratorContext.log.info("\t\t\t\t\tScanning all table foreign keys");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_FOREIGN_KEY_CONSTRAINTS)) {
 			return normalizeForeignKeys(st.executeQuery());
 		} catch (SQLException e) {
@@ -83,15 +92,12 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 	}
 
 	@Override
-	public void scanViews() {
-		try (Connection connection = connectionManager.get(); Statement st = connection.createStatement()) {
-			ResultSet rs = st.executeQuery("SELECT * FROM information_schema.tables WHERE table_type = 'VIEW'");
-			rs.next();
-			int colCount = rs.getMetaData().getColumnCount();
-			StringBuilder str = new StringBuilder();
-			for (int i = 1; i <= colCount; i++) str.append(rs.getString(i)).append(" ");
-			AbstractGeneratorContext.log.info(str);
+	public Map<String, List<Column>> scanViews() {
+		AbstractGeneratorContext.log.info("\t\t\t\t\tScanning all view columns");
+		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_VIEW_COLUMNS)) {
+			return normalizeColumns(st.executeQuery());
 		} catch (SQLException e) {
+			AbstractGeneratorContext.log.error(String.format("Failed scanning all view columns - %s", e.getMessage()));
 			throw new RuntimeException(e);
 		}
 	}

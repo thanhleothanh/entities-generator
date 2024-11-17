@@ -22,7 +22,7 @@ public abstract class AbstractSchemaScanner {
 	public abstract Map<String, List<Constraint>> scanTablePrimaryKeys();
 	public abstract Map<String, List<Column>> scanTableColumns();
 	public abstract Map<String, List<Constraint>> scanTableForeignKeys();
-	public abstract void scanViews();
+	public abstract Map<String, List<Column>> scanViews();
 
 	protected Map<String, List<Constraint>> normalizePrimaryKeys(ResultSet rs) throws SQLException {
 		List<Constraint> constraints = new ArrayList<>();
@@ -46,8 +46,7 @@ public abstract class AbstractSchemaScanner {
 			Column column = new Column(
 					rs.getString("table_name"),
 					rs.getString("column_name"),
-					rs.getString("data_type"),
-					rs.getBoolean("is_nullable"));
+					rs.getString("data_type"));
 			columns.add(column);
 			AbstractGeneratorContext.log.info(String.format("Found in table (%s), column (%s), data type (%s)", column.tableName(), column.columnName(), column.dataType()));
 		}
@@ -68,9 +67,5 @@ public abstract class AbstractSchemaScanner {
 			AbstractGeneratorContext.log.info(String.format("Found foreign key, %s (%s) -> %s (%s)", constraint.tableName(), constraint.columnName(), constraint.fTableName(), constraint.fColumnName()));
 		}
 		return constraints.stream().collect(Collectors.groupingBy(Constraint::tableName, TreeMap::new, Collectors.toList()));
-	}
-
-	protected void normalizeViews() {
-
 	}
 }
