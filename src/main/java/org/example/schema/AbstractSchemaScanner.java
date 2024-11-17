@@ -32,8 +32,8 @@ public abstract class AbstractSchemaScanner {
 					rs.getString("constraint_name"),
 					rs.getString("table_name"),
 					rs.getString("column_name"),
-					null,
-					null);
+					rs.getString("table_name"),
+					rs.getString("column_name"));
 			constraints.add(constraint);
 			AbstractGeneratorContext.log.info(String.format("Found in table (%s), primary key (%s)", constraint.tableName(), constraint.columnName()));
 		}
@@ -61,10 +61,10 @@ public abstract class AbstractSchemaScanner {
 					rs.getString("constraint_name"),
 					rs.getString("table_name"),
 					rs.getString("column_name"),
-					rs.getString("f_table_name"),
-					rs.getString("f_column_name"));
+					rs.getString("fk_table_name"),
+					rs.getString("fk_column_name"));
 			constraints.add(constraint);
-			AbstractGeneratorContext.log.info(String.format("Found foreign key, %s (%s) -> %s (%s)", constraint.tableName(), constraint.columnName(), constraint.fTableName(), constraint.fColumnName()));
+			AbstractGeneratorContext.log.info(String.format("Found foreign key, %s (%s) -> %s (%s)", constraint.tableName(), constraint.columnName(), constraint.fkTableName(), constraint.fkColumnName()));
 		}
 		return constraints.stream().collect(Collectors.groupingBy(Constraint::tableName, TreeMap::new, Collectors.toList()));
 	}

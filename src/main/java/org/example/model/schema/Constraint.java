@@ -7,7 +7,7 @@ public record Constraint(
 		String constraintName,
 		String tableName,
 		String columnName,
-		String fTableName,
-		String fColumnName
+		String fkTableName,
+		String fkColumnName
 ) {
 }

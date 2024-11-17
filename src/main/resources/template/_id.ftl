@@ -1,21 +1,23 @@
-<#import "_field.ftl" as _field>
+<#macro generate id>
+  <#lt>  @Id
+  <#lt>  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  <#lt>  @Column(name = "${id.getColumnName()}")
+  <#lt>  private ${id.getJavaClass()} ${id.getName()};
 
-<#macro generate id >
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  <@_field.generate id "  "/>
 </#macro>
 
 <#macro generateComp ids >
-  @Embeddable
-  @Getter
-  @Setter
-  public static class CompId {
-    <#list ids as id>
-      <@_field.generate id "    "/>
-    </#list>
-  }
+  <#lt>  @Embeddable
+  <#lt>  @Getter
+  <#lt>  @Setter
+  <#lt>  public static class CompId {
+  <#list ids as id>
 
-  @EmbeddedId
-  private CompId compId;
+    <#lt>    @Column(name = "${id.getColumnName()}")
+    <#lt>    private ${id.getJavaClass()} ${id.getName()};
+  </#list>
+  <#lt>  }
+  <#lt>  @EmbeddedId
+  <#lt>  private CompId compId;
+
 </#macro>

@@ -1,5 +1,4 @@
 <#import "_id.ftl" as _id>
-<#import "_field.ftl" as _field>
 <#import "_relationship.ftl" as _relationship>
 
 package ${packageName};
@@ -21,27 +20,24 @@ import javax.persistence.*;
 public class ${entity.getName()} {
   public static final String TABLE_NAME = "${entity.getTableName()}"
 
-  <#if (entity.getIds()?size > 1)>
-    <@_id.generateComp entity.getIds() />
-  <#elseif (entity.getIds()?size = 1)>
-    <@_id.generate entity.getIds()[0] />
+  <#--id-->
+  <#if (entity.getIds()?size > 1)><@_id.generateComp entity.getIds() />
+  <#elseif (entity.getIds()?size = 1)><@_id.generate entity.getIds()[0] />
   </#if>
-
+  <#--normal fields-->
   <#if (entity.getFields()?size != 0)>
-    <#list entity.getFields() as entityField>
-      <@_field.generate entityField "  "/>
+    <#list entity.getFields() as field>
+      <#lt>  @Column(name = "${field.getColumnName()}")
+      <#lt>  private ${field.getJavaClass()} ${field.getName()};
+
     </#list>
   </#if>
-
+  <#--relationships-->
   <#if (entity.getCompRelationships()?size != 0)>
-    <#list entity.getRelationships() as relationship>
-      <@_relationship.generate relationship "  "/>
-    </#list>
+    <#list entity.getRelationships() as relationship><@_relationship.generate relationship/></#list>
   </#if>
-
+  <#--composite relationships -->
   <#if (entity.getCompRelationships()?size != 0)>
-    <#list entity.getCompRelationships() as relationship>
-      <@_relationship.generateComp relationship "  "/>
-    </#list>
+    <#list entity.getCompRelationships() as relationship><@_relationship.generateComp relationship/></#list>
   </#if>
 }

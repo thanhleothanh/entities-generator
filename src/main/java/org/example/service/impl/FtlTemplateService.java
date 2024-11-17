@@ -25,7 +25,7 @@ public class FtlTemplateService implements TemplateService {
 
 		for (Entity entity : entities) {
 			Map<String, Object> input = new HashMap<>();
-			input.put("packageName", "org.example.model");
+			input.put("packageName", AbstractGeneratorContext.packageName);
 			input.put("entity", entity);
 			try {
 				Template template = cfg.getTemplate("_entity.ftl");

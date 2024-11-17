@@ -35,8 +35,8 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 				       tc.constraint_name AS constraint_name,
 				       kcu.table_name     AS table_name,
 				       kcu.column_name    AS column_name,
-				       fkcu.table_name    AS f_table_name,
-				       fkcu.column_name   AS f_column_name
+				       fkcu.table_name    AS fk_table_name,
+				       fkcu.column_name   AS fk_column_name
 				  FROM information_schema.table_constraints tc
 				  INNER JOIN (SELECT DISTINCT * FROM information_schema.referential_constraints rc) rc ON tc.constraint_name = rc.constraint_name
 				  INNER JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name AND tc.table_name = kcu.table_name

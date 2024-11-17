@@ -9,7 +9,7 @@ public class ReferencingField extends Field {
 	private final Field referencedField;
 
 	public ReferencingField(Field referencingField, Field referencedField) {
-		super(referencingField.getName(), referencingField.getTableName(), referencingField.getColumnName(), referencingField.getJavaClass());
+		super(referencingField.getName(), referencingField.getColumnName(), referencingField.getJavaClass());
 		this.referencedField = referencedField;
 	}
 

@@ -12,7 +12,6 @@ import org.example.model.schema.Constraint;
 @AllArgsConstructor
 public class Field {
 	private final String name;
-	private final String tableName;
 	private final String columnName;
 	private final String javaClass;
 
@@ -20,7 +19,6 @@ public class Field {
 		DataType dataType = DataType.of(AbstractGeneratorContext.connectionManager.getDriver(), col.dataType());
 		return new Field(
 				CaseUtils.toCamelCase(col.columnName(), false, '_'),
-				col.tableName(),
 				col.columnName(),
 				dataType.getJavaClass());
 	}
@@ -28,16 +26,14 @@ public class Field {
 	public static Field ofReferencingField(Constraint fk) {
 		return new Field(
 				CaseUtils.toCamelCase(fk.columnName(), false, '_'),
-				fk.tableName(),
 				fk.columnName(),
-				CaseUtils.toCamelCase(fk.fTableName(), true, '_'));
+				CaseUtils.toCamelCase(fk.fkTableName(), true, '_'));
 	}
 
 	public static Field ofReferencedField(Constraint fk) {
 		return new Field(
-				CaseUtils.toCamelCase(fk.fColumnName(), false, '_'),
-				fk.fTableName(),
-				fk.fColumnName(),
+				CaseUtils.toCamelCase(fk.fkColumnName(), false, '_'),
+				fk.fkColumnName(),
 				null);
 	}
 }
