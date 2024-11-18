@@ -2,6 +2,7 @@ package org.example;
 
 import java.io.File;
 import java.io.IOException;
+import lombok.Getter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -21,8 +22,9 @@ public abstract class AbstractGeneratorContext extends AbstractMojo {
 	private String jdbcPassword;
 	@Parameter(property = "basePackageName", required = true)
 	private String basePackageName;
+	@Getter
 	@Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}/generated-sources/src")
-	protected File outputDirectory;
+	private File outputDirectory;
 	@Parameter(property = "removeOldOutput", defaultValue = "false")
 	private boolean removeOldOutput;
 	@Parameter(property = "skip", defaultValue = "false")
@@ -34,16 +36,16 @@ public abstract class AbstractGeneratorContext extends AbstractMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException {
+		if (skip) {
+			getLog().info("Skipping entities generator!");
+			return;
+		}
 		beforeExecute();
 		initContext();
 		doExecute();
 	}
 
 	private void beforeExecute() throws MojoExecutionException {
-		if (skip) {
-			getLog().info("Skipping entities generator!");
-			return;
-		}
 		try {
 			FileUtils.forceMkdir(outputDirectory);
 		} catch (final IOException ioe) {

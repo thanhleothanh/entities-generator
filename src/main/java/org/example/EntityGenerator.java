@@ -23,14 +23,15 @@ public final class EntityGenerator extends AbstractGeneratorContext {
 
 	@Override
 	public void doExecute() {
-		log.info(">>> Scanning schema! <<<\n");
+		log.info(">>> Scanning schema! <<<");
 		AbstractSchemaScanner scanner = SchemaScannerFactory.of(connectionManager);
 		Map<String, List<Constraint>> primaryKeys = scanner.scanTablePrimaryKeys();
 		Map<String, List<Column>> columns = scanner.scanTableColumns();
 		Map<String, List<Constraint>> foreignKeys = scanner.scanTableForeignKeys();
 		Map<String, List<Column>> viewColumns = scanner.scanViews();
 
-		log.info(">>> Generating Java files! <<<\n");
-		service.process(normalizer.normalizeEntities(primaryKeys, columns, foreignKeys, viewColumns), this.outputDirectory);
+		log.info(">>> Generating Java files! <<<");
+		service.process(normalizer.normalizeEntities(primaryKeys, columns, foreignKeys, viewColumns), getOutputDirectory());
+		log.info(">>> Finished generating Java files! <<<");
 	}
 }

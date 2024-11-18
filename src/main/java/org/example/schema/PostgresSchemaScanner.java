@@ -60,44 +60,44 @@ public final class PostgresSchemaScanner extends AbstractSchemaScanner {
 
 	@Override
 	public Map<String, List<Constraint>> scanTablePrimaryKeys() {
-		AbstractGeneratorContext.log.info("\t\t\t\t\tScanning all table primary keys");
+		AbstractGeneratorContext.log.info("\tScanning all table primary keys");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_PRIMARY_KEY_CONSTRAINTS)) {
 			return normalizePrimaryKeys(st.executeQuery());
 		} catch (SQLException e) {
-			AbstractGeneratorContext.log.error(String.format("Failed scanning all table primary keys - %s", e.getMessage()));
+			AbstractGeneratorContext.log.error(String.format("\tFailed scanning all table primary keys - %s", e.getMessage()));
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public Map<String, List<Column>> scanTableColumns() {
-		AbstractGeneratorContext.log.info("\t\t\t\t\tScanning all table columns");
+		AbstractGeneratorContext.log.info("\tScanning all table columns");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_TABLE_COLUMNS)) {
 			return normalizeColumns(st.executeQuery());
 		} catch (SQLException e) {
-			AbstractGeneratorContext.log.error(String.format("Failed scanning all table columns - %s", e.getMessage()));
+			AbstractGeneratorContext.log.error(String.format("\tFailed scanning all table columns - %s", e.getMessage()));
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public Map<String, List<Constraint>> scanTableForeignKeys() {
-		AbstractGeneratorContext.log.info("\t\t\t\t\tScanning all table foreign keys");
+		AbstractGeneratorContext.log.info("\tScanning all table foreign keys");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_FOREIGN_KEY_CONSTRAINTS)) {
 			return normalizeForeignKeys(st.executeQuery());
 		} catch (SQLException e) {
-			AbstractGeneratorContext.log.error(String.format("Failed scanning all table foreign keys - %s", e.getMessage()));
+			AbstractGeneratorContext.log.error(String.format("\tFailed scanning all table foreign keys - %s", e.getMessage()));
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public Map<String, List<Column>> scanViews() {
-		AbstractGeneratorContext.log.info("\t\t\t\t\tScanning all view columns");
+		AbstractGeneratorContext.log.info("\tScanning all view columns");
 		try (Connection connection = connectionManager.get(); PreparedStatement st = connection.prepareStatement(QUERY_VIEW_COLUMNS)) {
 			return normalizeColumns(st.executeQuery());
 		} catch (SQLException e) {
-			AbstractGeneratorContext.log.error(String.format("Failed scanning all view columns - %s", e.getMessage()));
+			AbstractGeneratorContext.log.error(String.format("\tFailed scanning all view columns - %s", e.getMessage()));
 			throw new RuntimeException(e);
 		}
 	}
