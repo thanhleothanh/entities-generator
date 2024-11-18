@@ -12,6 +12,6 @@ public enum Driver {
 
 		if (jdbcUrl.contains("jdbc:postgresql")) {
 			return Driver.POSTGRESQL;
-		} else throw new IllegalArgumentException(String.format("jdbcUrl '%s' is not supported", jdbcUrl));
+		} else throw new IllegalArgumentException(String.format("jdbcUrl (%s) is not supported", jdbcUrl));
 	}
 }

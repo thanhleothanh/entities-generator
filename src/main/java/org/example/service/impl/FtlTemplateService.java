@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,10 +32,7 @@ public class FtlTemplateService implements TemplateService {
 		try {
 			Template template = cfg.getTemplate("_entity.ftl");
 			for (Entity entity : entities) {
-				AbstractGeneratorContext.log.info(String.format("\tProcessing entity '%s'", entity.getName()));
-				Map<String, Object> config = new HashMap<>();
-				config.put("packageName", AbstractGeneratorContext.packageName);
-				config.put("entity", entity);
+				AbstractGeneratorContext.log.info(String.format("\tProcessing entity (%s)", entity.getName()));
 
 				Path outputPath = Path.of(outputDirectory.getPath(), "%s.java".formatted(entity.getName()));
 				OpenOption[] fileOptions = overwriteExistingFiles ?
@@ -44,11 +40,11 @@ public class FtlTemplateService implements TemplateService {
 						new OpenOption[]{StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW};
 
 				try (Writer fileWriter = Files.newBufferedWriter(outputPath, fileOptions)) {
-					template.process(config, fileWriter);
+					template.process(Map.of("entity", entity), fileWriter);
 				} catch (FileAlreadyExistsException e) {
-					AbstractGeneratorContext.log.info(String.format("\tIgnoring entity '%s'. If you wish to replace existing files, set overwriteExistingFiles=true. If you wish to delete all existing files, set cleanOutputDirectory=true.", entity.getName()));
+					AbstractGeneratorContext.log.info(String.format("\tIgnoring entity (%s). If you wish to replace existing files, set overwriteExistingFiles=true. If you wish to delete all existing files, set cleanOutputDirectory=true.", entity.getName()));
 				} catch (TemplateException | IOException e) {
-					AbstractGeneratorContext.log.info(String.format("\tFailed while processing entity '%s' - %s", entity.getName(), e.getMessage()));
+					AbstractGeneratorContext.log.info(String.format("\tFailed while processing entity (%s) - %s", entity.getName(), e.getMessage()));
 					throw e;
 				}
 			}

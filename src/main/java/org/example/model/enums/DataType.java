@@ -43,7 +43,7 @@ public enum DataType {
 		}
 
 		if (Driver.POSTGRESQL.equals(driver)) return find(dbDataType, postgresqlMapper);
-		else throw new IllegalArgumentException(String.format("driver '%s' does not specify supported data types", driver));
+		else throw new IllegalArgumentException(String.format("driver (%s) does not specify supported data types", driver));
 	}
 
 	private static DataType find(String dbDataType, Map<DataType, List<String>> mapper) {

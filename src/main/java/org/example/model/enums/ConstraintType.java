@@ -10,9 +10,9 @@ public enum ConstraintType {
 				else if (constraintType.equalsIgnoreCase("FOREIGN KEY")) yield ConstraintType.FOREIGN_KEY;
 				else if (constraintType.equalsIgnoreCase("CHECK")) yield ConstraintType.CHECK;
 				else if (constraintType.equalsIgnoreCase("UNIQUE")) yield ConstraintType.UNIQUE;
-				else throw new IllegalArgumentException(String.format("constraintType '%s' is not supported for driver '%s'", constraintType, driver));
+				else throw new IllegalArgumentException(String.format("constraintType (%s) is not supported for driver (%s)", constraintType, driver));
 			}
-			default -> throw new IllegalArgumentException(String.format("driver '%s' is not supported", driver));
+			default -> throw new IllegalArgumentException(String.format("driver (%s) is not supported", driver));
 		};
 	}
 }
