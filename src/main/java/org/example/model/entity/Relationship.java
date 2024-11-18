@@ -8,4 +8,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class Relationship {
 	private final List<ReferencingField> fields;
+	private final String javaClass;
+	private final String name;
 }

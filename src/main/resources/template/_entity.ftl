@@ -1,6 +1,3 @@
-<#import "_id.ftl" as _id>
-<#import "_relationship.ftl" as _relationship>
-
 package ${packageName};
 
 import java.io.Serializable;
@@ -10,9 +7,8 @@ import java.sql.Timestamp;
 import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-<#list entity.getImports() as import>
-  <#lt>import ${import};
-</#list>
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Getter
 @Setter
@@ -20,25 +16,42 @@ import lombok.Setter;
 @Table(name = "${entity.getTableName()}")
 public class ${entity.getName()} implements Serializable {
   public static final String TABLE_NAME = "${entity.getTableName()}";
-
   <#--id-->
-  <#if (entity.getIds()?size > 1)><@_id.generateComp entity.getIds() />
-  <#elseif (entity.getIds()?size = 1)><@_id.generate entity.getIds()[0] />
+  <#lt><#if (entity.getIds()?size > 1)>
+
+    <#lt>  @Embeddable
+    <#lt>  @Getter
+    <#lt>  @Setter
+    <#lt>  @NoArgsConstructor
+    <#lt>  @AllArgsConstructor
+    <#lt>  public static class CompId implements Serializable {
+    <#list entity.getIds() as id>
+      <#lt>    @Column(name = "${id.getColumnName()}")
+      <#lt>    private ${id.getJavaClass()} ${id.getName()};
+    </#list>
+    <#lt>  }
+    <#lt>  @EmbeddedId
+    <#lt>  private CompId compId;
+  <#lt><#elseif (entity.getIds()?size = 1)> <#assign id = entity.getIds()?first>
+
+    <#lt>  /* define @GeneratedValue, or not */
+    <#lt>  @Id
+    <#lt>  @Column(name = "${id.getColumnName()}")
+    <#lt>  private ${id.getJavaClass()} ${id.getName()};
   </#if>
   <#--normal fields-->
-  <#if (entity.getFields()?size != 0)>
-    <#list entity.getFields() as field>
-      <#lt>  @Column(name = "${field.getColumnName()}")
-      <#lt>  private ${field.getJavaClass()} ${field.getName()};
+  <#lt><#list entity.getFields() as field>
 
-    </#list>
-  </#if>
+    <#lt>  @Column(name = "${field.getColumnName()}")
+    <#lt>  private ${field.getJavaClass()} ${field.getName()};
+  </#list>
   <#--relationships-->
-  <#if (entity.getCompRelationships()?size != 0)>
-    <#list entity.getRelationships() as relationship><@_relationship.generate relationship/></#list>
-  </#if>
-  <#--composite relationships -->
-  <#if (entity.getCompRelationships()?size != 0)>
-    <#list entity.getCompRelationships() as relationship><@_relationship.generateComp relationship/></#list>
-  </#if>
+  <#lt><#list entity.getRelationships() as relationship>
+
+    <#lt>  @ManyToOne(cascade = {CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    <#lt><#list relationship.getFields() as referencingField>
+      <#lt>  @JoinColumn(name = "${referencingField.getColumnName()}", referencedColumnName = "${referencingField.getReferencedField().getColumnName()}")
+    </#list>
+    <#lt>  private ${relationship.getJavaClass()} ${relationship.getName()};
+  </#list>
 }

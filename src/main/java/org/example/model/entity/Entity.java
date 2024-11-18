@@ -5,22 +5,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.example.AbstractGeneratorContext;
 import org.example.model.schema.Column;
+import org.example.util.TextUtil;
 
 @Getter
-@Setter
 public class Entity {
 	private final String packageName;
 	private final String name;
 	private final String tableName;
-	private final Set<String> imports = new HashSet<>();
 	private final List<Field> ids = new ArrayList<>();
 	private final List<Field> fields = new ArrayList<>();
 	private final List<Relationship> relationships = new ArrayList<>();
-	private final List<Relationship> compRelationships = new ArrayList<>();
+
+	/* keeping track of and making sure of unique variable names */
+	private final Set<String> variableNames = new HashSet<>();
 
 	public Entity(String packageName, String name, String tableName) {
 		this.packageName = packageName;
@@ -29,19 +28,46 @@ public class Entity {
 	}
 
 	public void addId(Column col) {
-		this.ids.add(Field.of(col));
+		Field id = Field.of(col);
+		keepVariableNameUnique(id);
+		ids.add(id);
 	}
 
 	public void addField(Column col) {
-		this.fields.add(Field.of(col));
+		Field field = Field.of(col);
+		keepVariableNameUnique(field);
+		fields.add(field);
 	}
 
 	public void addRelationship(List<ReferencingField> fields) {
 		if (CollectionUtils.isEmpty(fields)) {
 			return;
 		}
-		this.imports.add(String.format("%s.%s", AbstractGeneratorContext.packageName, fields.get(0).getJavaClass()));
-		if (fields.size() > 1) this.compRelationships.add(new Relationship(fields));
-		else this.relationships.add(new Relationship(fields));
+		if (fields.size() > 1) {
+			String javaClass = fields.get(0).getReferencedField().getJavaClass();
+			String variableName = getUniqueVariableName(TextUtil.toCamelCase(javaClass, false));
+			variableNames.add(variableName);
+			relationships.add(new Relationship(fields, javaClass, variableName));
+		} else {
+			String javaClass = fields.get(0).getReferencedField().getJavaClass();
+			String variableName = getUniqueVariableName(fields.get(0).getName());
+			variableNames.add(variableName);
+			relationships.add(new Relationship(fields, javaClass, variableName));
+		}
+	}
+
+	private void keepVariableNameUnique(Field field) {
+		if (variableNames.contains(field.getName())) {
+			field.setName(field.getName() + "_");
+			keepVariableNameUnique(field);
+		}
+		variableNames.add(field.getName());
+	}
+
+	private String getUniqueVariableName(String variableName) {
+		if (variableNames.contains(variableName)) {
+			return getUniqueVariableName(variableName + "_");
+		}
+		return variableName;
 	}
 }

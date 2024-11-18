@@ -25,8 +25,11 @@ public abstract class AbstractGeneratorContext extends AbstractMojo {
 	@Getter
 	@Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}/generated-sources/src")
 	private File outputDirectory;
-	@Parameter(property = "removeOldOutput", defaultValue = "false")
-	private boolean removeOldOutput;
+	@Parameter(property = "cleanOutputDirectory", defaultValue = "false")
+	private boolean cleanOutputDirectory;
+	@Getter
+	@Parameter(property = "overwriteExistingFiles", defaultValue = "true")
+	private boolean overwriteExistingFiles;
 	@Parameter(property = "skip", defaultValue = "false")
 	private boolean skip;
 
@@ -51,7 +54,7 @@ public abstract class AbstractGeneratorContext extends AbstractMojo {
 		} catch (final IOException ioe) {
 			throw new MojoExecutionException("Failed to create directory: " + outputDirectory, ioe);
 		}
-		if (removeOldOutput) {
+		if (cleanOutputDirectory) {
 			try {
 				FileUtils.cleanDirectory(outputDirectory);
 			} catch (final IOException ioe) {

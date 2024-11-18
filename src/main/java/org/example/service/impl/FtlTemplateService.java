@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ import org.example.service.TemplateService;
 public class FtlTemplateService implements TemplateService {
 
 	@Override
-	public void process(List<Entity> entities, File outputDirectory) {
+	public void process(List<Entity> entities, File outputDirectory, boolean overwriteExistingFiles) {
 		Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
 		cfg.setLocale(Locale.US);
 		cfg.setDefaultEncoding("UTF-8");
@@ -38,12 +39,17 @@ public class FtlTemplateService implements TemplateService {
 				config.put("entity", entity);
 
 				Path outputPath = Path.of(outputDirectory.getPath(), "%s.java".formatted(entity.getName()));
-				try (Writer fileWriter = Files.newBufferedWriter(outputPath, StandardOpenOption.CREATE_NEW)) {
+				OpenOption[] fileOptions = overwriteExistingFiles ?
+						new OpenOption[]{StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING} :
+						new OpenOption[]{StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW};
+
+				try (Writer fileWriter = Files.newBufferedWriter(outputPath, fileOptions)) {
 					template.process(config, fileWriter);
 				} catch (FileAlreadyExistsException e) {
-					AbstractGeneratorContext.log.info(String.format("\tIgnoring entity '%s'. If you wish to replace existing files, set removeOldOutput=true", entity.getName()));
+					AbstractGeneratorContext.log.info(String.format("\tIgnoring entity '%s'. If you wish to replace existing files, set overwriteExistingFiles=true. If you wish to delete all existing files, set cleanOutputDirectory=true.", entity.getName()));
 				} catch (TemplateException | IOException e) {
 					AbstractGeneratorContext.log.info(String.format("\tFailed while processing entity '%s' - %s", entity.getName(), e.getMessage()));
+					throw e;
 				}
 			}
 		} catch (Exception e) {

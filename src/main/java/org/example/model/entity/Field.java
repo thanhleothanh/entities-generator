@@ -2,6 +2,7 @@ package org.example.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.example.AbstractGeneratorContext;
 import org.example.model.enums.DataType;
 import org.example.model.schema.Column;
@@ -11,7 +12,8 @@ import org.example.util.TextUtil;
 @Getter
 @AllArgsConstructor
 public class Field {
-	private final String name;
+	@Setter
+	private String name;
 	private final String columnName;
 	private final String javaClass;
 
@@ -27,13 +29,13 @@ public class Field {
 		return new Field(
 				TextUtil.toCamelCase(fk.columnName(), false),
 				fk.columnName(),
-				TextUtil.toCamelCase(fk.fkTableName(), true));
+				TextUtil.toCamelCase(fk.tableName(), true));
 	}
 
 	public static Field ofReferencedField(Constraint fk) {
 		return new Field(
 				TextUtil.toCamelCase(fk.fkColumnName(), false),
 				fk.fkColumnName(),
-				null);
+				TextUtil.toCamelCase(fk.fkTableName(), true));
 	}
 }

@@ -31,7 +31,10 @@ public final class EntityGenerator extends AbstractGeneratorContext {
 		Map<String, List<Column>> viewColumns = scanner.scanViews();
 
 		log.info(">>> Generating Java files! <<<");
-		service.process(normalizer.normalizeEntities(primaryKeys, columns, foreignKeys, viewColumns), getOutputDirectory());
+		service.process(
+				normalizer.normalizeEntities(primaryKeys, columns, foreignKeys, viewColumns),
+				getOutputDirectory(),
+				isOverwriteExistingFiles());
 		log.info(">>> Finished generating Java files! <<<");
 	}
 }

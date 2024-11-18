@@ -1,6 +1,7 @@
 package org.example.service.impl;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -89,4 +90,9 @@ public class GenericEntityNormalizerService implements EntityNormalizerService {
 		return Optional.of(entity);
 	}
 
+	@Override
+	public void afterNormalizeEntities(List<Entity> entities) {
+		/* composite relationships should be at the end of the files */
+		entities.forEach(entity -> entity.getRelationships().sort(Comparator.comparing(relationship -> relationship.getFields().size())));
+	}
 }
