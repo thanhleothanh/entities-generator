@@ -16,7 +16,7 @@ import org.example.service.TemplateService;
 import org.example.service.impl.FtlTemplateService;
 import org.example.service.impl.GenericEntityNormalizerService;
 
-@Mojo(name = "entities-generate", requiresDependencyResolution = COMPILE_PLUS_RUNTIME, defaultPhase = LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name = "generate-entities", requiresDependencyResolution = COMPILE_PLUS_RUNTIME, defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public final class EntityGenerator extends AbstractGeneratorContext {
 	private final TemplateService service = new FtlTemplateService();
 	private final EntityNormalizerService normalizer = new GenericEntityNormalizerService();

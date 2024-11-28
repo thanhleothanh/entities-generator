@@ -6,7 +6,7 @@ This maven plugin helps generating @Entity java files to:
 - Or generate java files + java class files on the fly when compile and build the project (if you don't want to manually manage the java files)
 
 
-## Installation
+## Installations
 
 Install the plugin locally with
 
@@ -20,7 +20,7 @@ Then in the project that you want to use this plugin to generate code, add the p
     <plugins>
       <plugin>
         <groupId>org.example</groupId>
-        <artifactId>entities-generator</artifactId>
+        <artifactId>maven-entities-generator</artifactId>
         <version>1.0-SNAPSHOT</version>
         <configuration>
           <jdbcUrl>${jdbcUrl}</jdbcUrl>
@@ -31,10 +31,44 @@ Then in the project that you want to use this plugin to generate code, add the p
           <execution>
             <phase>generate-sources</phase>
             <goals>
-              <goal>entities-generate</goal>
+              <goal>generate-entities</goal>
             </goals>
           </execution>
         </executions>
+      </plugin>
+    </plugins>
+  </build>
+```
+
+Or, if you don't want to manage the dependencies from m2 repository, you could put the built `.jar` of the plugin directly in the project (let's say in the `./libs` folder), then configure the build step as following
+```bash
+   <build>
+    <plugins>
+      <plugin>
+        <groupId>org.example</groupId>
+        <artifactId>maven-entities-generator</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <configuration>
+          <jdbcUrl>${jdbcUrl}</jdbcUrl>
+          <jdbcUser>${jdbcUser}</jdbcUser>
+          <jdbcPassword>${jdbcPassword}</jdbcPassword>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate-entities</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>maven-entities-generator</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <systemPath>${basedir}/libs/maven-entities-generator-1.0-SNAPSHOT.jar</systemPath>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
